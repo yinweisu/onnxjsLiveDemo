@@ -53,7 +53,23 @@ var processor = {
         var l = frame.data.length / 4;
         var rgb_frame = frame.data.slice(0, l*3);
         var rgb_frame_f32 = Float32Array.from(rgb_frame);
-        
+
+        const r_mean = 0.485;
+        const g_mean = 0.456;
+        const b_mean = 0.406;
+        const r_std = 0.229;
+        const g_std = 0.224;
+        const b_std = 0.225;
+
+        for (var i = 0; i < l; i++) {
+            var r = rgb_frame_f32[i * 3 + 0];
+            var g = rgb_frame_f32[i * 3 + 1];
+            var b = rgb_frame_f32[i * 3 + 2];
+            rgb_frame_f32[i * 3 + 0] = ((r / 255) - r_mean) / r_std;
+            rgb_frame_f32[i * 3 + 1] = ((g / 255) - g_mean) / g_std;
+            rgb_frame_f32[i * 3 + 2] = ((b / 255) - b_mean) / b_std;
+        }
+        console.log(rgb_frame_f32);
         // this.ctx1.putImageData(frame, 0, 0);
 
         return;
@@ -65,7 +81,6 @@ navigator.mediaDevices.getUserMedia(media_constraints)
     var local_video_stream = document.getElementById('local_video_stream');
     local_video_stream.srcObject = stream;
     processor.doLoad();
-    // local_video_stream.addEventListener('')
 })
 .catch(handle_get_user_media_error);
 
