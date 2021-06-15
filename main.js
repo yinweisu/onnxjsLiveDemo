@@ -1,3 +1,10 @@
+const tasks = {
+    CLASSIFICATION: 'classification',
+    OBJECT_DETECTION: 'object_detection',
+    SEMANTIC_SEGMENTATION: 'semantic_segmentation',
+    INSTANCE_SEGMENTATION: 'instance_segmentation',
+    POSE_ESTIMATION: 'pose_estimation',
+}
 
 const media_constraints = {
     video: {
@@ -8,9 +15,11 @@ const media_constraints = {
 const input_height = 224;
 const input_width = 224;
 
-const model_file = './gluoncv_exported_resnet18_v1.onnx';
+const model_file = './resnet18_v1.onnx';
+const task = tasks.CLASSIFICATION;
 var session = undefined;
-const preprocesser = new Preprocessor();
+const preprocessor = new Preprocessor();
+const postprocessor = new Postprocessor(task);
 
 function handle_get_user_media_error(e) {
     switch(e.name) {
@@ -35,7 +44,7 @@ var processor = {
         var self = this;
         setTimeout(function () {
             self.timerCallback();
-      }, 200); // roughly 5 frames per second
+      }, 1000); // roughly 5 frames per second
     },
 
     doLoad: function() {
@@ -58,11 +67,15 @@ var processor = {
         var rgb_frame = frame.data.slice(0, l*3);
         var rgb_frame_f32 = Float32Array.from(rgb_frame);
 
-        preprocesser.normalize(rgb_frame_f32, l);
+        // preprocessor.normalize(rgb_frame_f32, l);
         const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,224,224,3]);
+        // console.log(image_tensor);
         const result = await session.run({data: image_tensor});
-        const data = result.resnetv10_dense0_fwd.data;
-        console.log(data);
+        // extract the data from result
+        const data = Object.keys(result).map((key) => result[key])[0].data;
+        // const data = result.resnetv10_dense0_fwd.data;
+        // console.log(data);
+        postprocessor.visualize(data, {k:1});
 
         // this.ctx1.putImageData(frame, 0, 0);
 
