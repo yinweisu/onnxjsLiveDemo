@@ -21,46 +21,21 @@ var session = undefined;
 const preprocessor = new Preprocessor();
 const postprocessor = new Postprocessor(task);
 
-function handle_get_user_media_error(e) {
-    switch(e.name) {
-        case 'NotFoundError':
-            alert('Unable to push video because no camera was found');
-            break;
-        case 'SecurityError':
-        case 'PermissionDeniedError':
-            break;
-        default:
-            alert('Error opening your camera: ' + e.message);
-            break;
-    }
+function screenshot() {
+    processor.computeFrame();
 }
 
 var processor = {
-    timerCallback: function() {
-        if (this.video.paused || this.video.ended) {
-            return;
-        }
-        this.computeFrame();
-        var self = this;
-        setTimeout(function () {
-            self.timerCallback();
-      }, 1000); // roughly 5 frames per second
-    },
-
     doLoad: function() {
         this.video = document.getElementById("local_video_stream");
         this.c1 = document.getElementById("result_canvas");
         this.ctx1 = this.c1.getContext("2d");
-        var self = this;
-    
-        this.video.addEventListener("play", function() {
-            self.width = self.video.width;
-            self.height = self.video.height;
-            self.timerCallback();
-        }, false);
     },
 
     computeFrame: async function() {
+        if (this.video.paused || this.video.ended) {
+            return;
+        }
         this.ctx1.drawImage(this.video, 0, 0, input_width, input_height);
         var frame = this.ctx1.getImageData(0, 0, input_width, input_height);
         var l = frame.data.length / 4;
@@ -82,6 +57,20 @@ var processor = {
         return;
     }
 }; 
+
+function handle_get_user_media_error(e) {
+    switch(e.name) {
+        case 'NotFoundError':
+            alert('Unable to push video because no camera was found');
+            break;
+        case 'SecurityError':
+        case 'PermissionDeniedError':
+            break;
+        default:
+            alert('Error opening your camera: ' + e.message);
+            break;
+    }
+}
 
 async function main() {
     try {
