@@ -1,0 +1,54 @@
+.clr {
+    clear: both;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+}
+
+.video_container {
+    float: left;
+    width: 50%;
+    height: 0px;
+    padding-top: 33.35%; /* 50% * (480/720) */
+    position: relative;
+}
+
+.display {
+    width: 100%;
+    height: 100%;
+    position:absolute;
+    top: 0;
+    left: 0;
+    border: 2px solid black;
+}
+
+.canvas_container {
+    float:right;
+    width: 50%;
+    height: 0px;
+    padding-top: 33.35%;
+    position: relative;
+}
+
+.container button {
+    margin-top: 10px;
+    margin-left: 47.5%;
+}
+
+button {
+    background-color: black;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+}
+
+button:hover {
+    background-color: red;
+    color: white;
+}
+
+#classification_result {
+    margin-left: 47.5%;
+}

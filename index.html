@@ -3,16 +3,24 @@
     <head>
         <meta charset="utf-8" />
         <title>DemoEngineExample</title>
+        <link rel="stylesheet" href="css/style.css">
+        <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+        <script src="scripts/image_net_label.js"></script>
+        <script src="scripts/preprocessor.js"></script>
+        <script src="scripts/postprocessor.js"></script>
+        <script src="scripts/main.js"></script>
     </head>
     <body>
-        <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-        <script src="image_net_label.js"></script>
-        <script src="preprocessor.js"></script>
-        <script src="postprocessor.js"></script>
-        <script src="main.js"></script>
-        <video id="local_video_stream" width="1280" height="720" autoPlay playinline></video>
-        <button type="button" id="screenshot_button" onclick="screenshot()">Screenshot</button>
-        <canvas id="result_canvas" width="1280" height="720"></canvas>
-        <p id="classification_result" hidden>Classification Result:</p>
+        <div class="container">
+            <div class="video_container">
+                <video class="display" id="local_video_stream" width="720" height="480" autoPlay playinline></video>
+            </div>
+            <div class="canvas_container">
+                <canvas class="display" id="result_canvas" width="720" height="480"></canvas>
+            </div>
+            <div class="clr"></div>
+            <button type="button" id="screenshot_button" onclick="screenshot()">Screenshot</button>
+            <p id="classification_result" hidden>Classification Result:</p>
+        </div>
     </body>
 </html>

@@ -8,8 +8,8 @@ const tasks = {
 
 const media_constraints = {
     video: {
-        width: 1280,
-        height: 720,
+        width: 720,
+        height: 480,
     }
 };
 const input_height = 224;
@@ -29,8 +29,8 @@ var processor = {
     doLoad: function() {
         this.task = task;
         this.video = document.getElementById('local_video_stream');
-        this.video_width = media_constraints.video.width;
-        this.video_height = media_constraints.video.height;
+        this.video_width = this.video.width;
+        this.video_height = this.video.height;
         this.c1 = document.getElementById('result_canvas');
         this.ctx1 = this.c1.getContext('2d');
     },
@@ -42,7 +42,7 @@ var processor = {
                 classification_result.hidden = false;
                 results = [];
                 processed_result.map((r) => results.push(r.name));
-                classification_result.innerHTML = results.join('<br/>');
+                classification_result.innerHTML = results.join('<br>');
                 break;
             case tasks.OBJECT_DETECTION:
                 break;
