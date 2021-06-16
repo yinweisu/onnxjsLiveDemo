@@ -4,7 +4,7 @@ class Postprocessor {
         // console.log(this.task);
     }
 
-    visualize_classification(class_probability, ctx) { 
+    process_classification(class_probability, ctx) { 
         const k = ctx.k;
         if (!k) { k = 5; }
         const probs = Array.from(class_probability);
@@ -31,14 +31,13 @@ class Postprocessor {
                 index: prob_index[1],
             };
         });
-        console.log(topK[0]);
         return topK;
     }
 
-    visualize(result, ctx) {
+    process(result, ctx) {
         switch (this.task) {
             case tasks.CLASSIFICATION:
-                this.visualize_classification(result, ctx);
+                return this.process_classification(result, ctx);
                 break;
             case tasks.OBJECT_DETECTION:
                 break;
