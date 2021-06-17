@@ -63,8 +63,10 @@ var processor = {
         var frame = this.ctx1.getImageData(0, 0, input_width, input_height);
         this.ctx1.drawImage(this.video, 0, 0, this.video_width, this.video_height);
         var l = frame.data.length / 4;
-        var rgb_frame = frame.data.slice(0, l*3);
-        var rgb_frame_f32 = Float32Array.from(rgb_frame);
+        // var rgb_frame = frame.data.slice(0, l*3); // interleaved
+        var rgba_frame_f32 = Float32Array.from(frame.data);
+        var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, l);
+
 
         // preprocessor.normalize(rgb_frame_f32, l);
         const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,224,224,3]);

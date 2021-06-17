@@ -10,6 +10,16 @@ class Preprocessor {
         };
     }
 
+    remove_alpha_channel(rgba_f32, length) {
+        var rgb_frame_f32 = new Float32Array(length * 3);
+        for (var i = 0; i < length; i++) {
+            rgb_frame_f32[i * 3 + 0] = rgba_f32[i * 4 + 0];
+            rgb_frame_f32[i * 3 + 1] = rgba_f32[i * 4 + 1];
+            rgb_frame_f32[i * 3 + 2] = rgba_f32[i * 4 + 2];
+        }
+        return rgb_frame_f32;
+    }
+
     normalize(rgb_frame_f32, l) {
         for (var i = 0; i < l; i++) {
             var r = rgb_frame_f32[i * 3 + 0];

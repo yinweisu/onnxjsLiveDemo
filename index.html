@@ -11,6 +11,7 @@
         <script src="scripts/main.js"></script>
     </head>
     <body>
+        <h1 id="title">DemoEngineExample</h1>
         <div class="container">
             <div class="video_container">
                 <video class="display" id="local_video_stream" width="720" height="480" autoPlay playinline></video>
@@ -19,8 +20,10 @@
                 <canvas class="display" id="result_canvas" width="720" height="480"></canvas>
             </div>
             <div class="clr"></div>
-            <button type="button" id="screenshot_button" onclick="screenshot()">Screenshot</button>
-            <p id="classification_result" hidden>Classification Result:</p>
+            <div style="text-align: center;">
+                <button type="button" id="screenshot_button" onclick="screenshot()">Screenshot</button>
+                <p id="classification_result" hidden>Classification Result:</p>
+            </div>
         </div>
     </body>
 </html>

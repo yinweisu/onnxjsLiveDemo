@@ -2,16 +2,21 @@
     clear: both;
 }
 
+#title {
+    text-align: center;
+}
+
 .container {
     width: 80%;
     margin: auto;
+    padding-top: 30px;
 }
 
 .video_container {
     float: left;
     width: 50%;
     height: 0px;
-    padding-top: 33.35%; /* 50% * (480/720) */
+    padding-top: 33.4%; /* 50% * (480/720) */
     position: relative;
 }
 
@@ -22,20 +27,22 @@
     top: 0;
     left: 0;
     border: 2px solid black;
+    box-sizing: border-box;
 }
 
 .canvas_container {
     float:right;
     width: 50%;
     height: 0px;
-    padding-top: 33.35%;
+    padding-top: 33.4%;
     position: relative;
 }
 
-.container button {
-    margin-top: 10px;
-    margin-left: 47.5%;
-}
+/* .container button {
+    display: block;
+    margin: auto;
+    margin-top: 30;
+} */
 
 button {
     background-color: black;
@@ -49,6 +56,6 @@ button:hover {
     color: white;
 }
 
-#classification_result {
+/* #classification_result {
     margin-left: 47.5%;
-}
+} */
