@@ -34,13 +34,16 @@ class Postprocessor {
         return topK;
     }
 
+    process_object_detection(result, ctx) {
+
+    }
+
     process(result, ctx) {
         switch (this.task) {
             case tasks.CLASSIFICATION:
                 return this.process_classification(result, ctx);
-                break;
             case tasks.OBJECT_DETECTION:
-                break;
+                return this.process_object_detection(result, ctx);
             case tasks.SEMANTIC_SEGMENTATION:
                 break;
             case tasksk.INSTANCE_SEGMENTATION:
