@@ -1022,4 +1022,4 @@ const voc_detection_labels = [
     'sofa', 
     'train', 
     'tvmonitor',
-]
+];

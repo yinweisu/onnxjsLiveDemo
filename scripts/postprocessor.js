@@ -3,6 +3,15 @@ class Postprocessor {
         this.task = task;
     }
 
+    getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
     process_classification(class_probability, ctx) { 
         var k = ctx.k;
         if (!k) { k = 5; }
@@ -38,11 +47,11 @@ class Postprocessor {
         const ymin = bbox[1];
         const xmax = bbox[2];
         const ymax = bbox[3];
-
-        const new_xmin = Math.round(xmin * (input_width / video_width));
-        const new_ymin = Math.round(ymin * (input_height / video_height));
-        const new_xmax = Math.round(xmax * (input_width / video_width));
-        const new_ymax = Math.round(ymax * (input_height / video_height));
+        console.log(video_width, input_width);
+        const new_xmin = Math.round(xmin * (video_width / input_width));
+        const new_ymin = Math.round(ymin * (video_height / input_height));
+        const new_xmax = Math.round(xmax * (video_width / input_width));
+        const new_ymax = Math.round(ymax * (video_height / input_height));
         const new_bbox_width = new_xmax - new_xmin;
         const new_bbox_height = new_ymax - new_ymin;
 
@@ -88,7 +97,7 @@ class Postprocessor {
             processed_scores.push(scores[i].toFixed(3));
             processed_bboxes.push(this.remap_bbox(bbox, video_width, video_height, input_width, input_height));
             // magic to generate random color: https://css-tricks.com/snippets/javascript/random-hex-color/
-            color_maps.push(Math.floor(Math.random()*16777215).toString(16));
+            color_maps.push(this.getRandomColor());
         }
 
         return [processed_class_ids, processed_scores, processed_bboxes, color_maps];

@@ -32,8 +32,18 @@ var processor = {
         this.video = document.getElementById('local_video_stream');
         this.video_width = this.video.width;
         this.video_height = this.video.height;
-        this.c1 = document.getElementById('result_canvas');
-        this.ctx1 = this.c1.getContext('2d');
+        this.canvas = document.getElementById('result_canvas');
+        this.canvas_ctx = this.canvas.getContext('2d');
+    },
+
+    draw_bbox(label, score, bbox, color) {
+        [xmin, ymin, width, height] = bbox;
+        this.canvas_ctx.strokeStyle = color;
+        this.canvas_ctx.fillStyle = color;
+        this.canvas_ctx.lineWidth = 3;
+        this.canvas_ctx.font = "30px Comic Sans MS";
+        this.canvas_ctx.strokeRect(xmin, ymin, width, height);
+        this.canvas_ctx.fillText(`${label} ${score}`, xmin, ymin-10);
     },
 
     visualize: function(processed_result) {
@@ -48,12 +58,13 @@ var processor = {
                 classification_result_element.innerHTML = results.join('<br>');
                 break;
             case tasks.OBJECT_DETECTION:
+                [classes, scores, bboxes, color_maps] = processed_result;
+                for (var i = 0; i < classes.length; i++) {
+                    this.draw_bbox(classes[i], scores[i], bboxes[i], color_maps[i]);
+                }
                 break;
-            case tasks.SEMANTIC_SEGMENTATION:
-                break;
-            case tasksk.INSTANCE_SEGMENTATION:
-                break;
-            case ttasks.POSE_ESTIMATION:
+            default:
+                alert('Error: task ' + model.task + ' has not been implemented');
                 break;
         }
     },
@@ -62,12 +73,12 @@ var processor = {
         if (this.video.paused || this.video.ended) {
             return;
         }
-        this.ctx1.drawImage(this.video, 0, 0, model.input_width, model.input_height);
-        var frame = this.ctx1.getImageData(0, 0, model.input_width, model.input_height);
-        this.ctx1.drawImage(this.video, 0, 0, this.video_width, this.video_height);
-        var l = frame.data.length / 4;
+        this.canvas_ctx.drawImage(this.video, 0, 0, model.input_width, model.input_height);
+        var frame = this.canvas_ctx.getImageData(0, 0, model.input_width, model.input_height);
+        this.canvas_ctx.drawImage(this.video, 0, 0, this.video_width, this.video_height);
+        var frame_length = frame.data.length / 4;
         var rgba_frame_f32 = Float32Array.from(frame.data);
-        var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, l);
+        var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, frame_length);
 
         const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,model.input_width,model.input_height,3]);
         const result = await session.run({data: image_tensor});
@@ -96,7 +107,7 @@ var processor = {
                 break;
         }
         
-        // this.ctx1.putImageData(frame, 0, 0);
+        // this.canvas_ctx.putImageData(frame, 0, 0);
 
         return;
     }
