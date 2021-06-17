@@ -13,9 +13,12 @@ const media_constraints = {
     }
 };
 
-const model_path = './resnet18_v1.onnx';
-const task = tasks.CLASSIFICATION;
-const model = new Model(model_path, 224, 224, task);
+// const model_path = 'models/resnet18_v1.onnx';
+// const task = tasks.CLASSIFICATION;
+const model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
+const task = tasks.OBJECT_DETECTION;
+// const model = new Model(model_path, 224, 224, task, image_net_labels);
+const model = new Model(model_path, 512, 512, task, voc_detection_labels);
 var session = undefined;
 const preprocessor = new Preprocessor();
 const postprocessor = new Postprocessor(model.task);
@@ -61,7 +64,6 @@ var processor = {
         var frame = this.ctx1.getImageData(0, 0, model.input_width, model.input_height);
         this.ctx1.drawImage(this.video, 0, 0, this.video_width, this.video_height);
         var l = frame.data.length / 4;
-        // var rgb_frame = frame.data.slice(0, l*3); // interleaved
         var rgba_frame_f32 = Float32Array.from(frame.data);
         var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, l);
 

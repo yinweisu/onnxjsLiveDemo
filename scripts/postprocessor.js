@@ -25,7 +25,7 @@ class Postprocessor {
                 }
         ).reverse();
         const topK = sorted.slice(0, k).map(function (prob_index) {
-            const i_class = image_net_label[prob_index[1]];
+            const i_class = model.classes[prob_index[1]];
             return {
                 name: i_class,
                 index: prob_index[1],
