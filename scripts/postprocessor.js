@@ -47,7 +47,6 @@ class Postprocessor {
         const ymin = bbox[1];
         const xmax = bbox[2];
         const ymax = bbox[3];
-        console.log(video_width, input_width);
         const new_xmin = Math.round(xmin * (video_width / input_width));
         const new_ymin = Math.round(ymin * (video_height / input_height));
         const new_xmax = Math.round(xmax * (video_width / input_width));

@@ -5,6 +5,7 @@
         <title>DemoEngineExample</title>
         <link rel="stylesheet" href="css/style.css">
         <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <script src="scripts/labels.js"></script>
         <script src="scripts/model.js"></script>
         <script src="scripts/preprocessor.js"></script>
@@ -14,6 +15,10 @@
     <body>
         <h1 id="title">DemoEngineExample</h1>
         <div class="container">
+            <div class="tab">
+                <button class="tablinks" id="classification_tab" onclick="on_classification()">Classification</button>
+                <button class="tablinks" id="object_detection_tab" onclick="on_obj_detection()">Object Detection</button>
+            </div>
             <div class="video_container">
                 <video class="display" id="local_video_stream" width="720" height="480" autoPlay playinline></video>
             </div>

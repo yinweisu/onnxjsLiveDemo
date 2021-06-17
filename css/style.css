@@ -12,6 +12,31 @@
     padding-top: 30px;
 }
 
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+.tab button {
+    background-color: inherit;
+    font-size: 20px;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}  
+
+.tab button:hover {
+    background-color: #ddd;
+}
+
+.tab button.selected {
+    background-color: #ccc;
+}
+
 .video_container {
     float: left;
     width: 50%;
@@ -38,24 +63,14 @@
     position: relative;
 }
 
-/* .container button {
-    display: block;
-    margin: auto;
-    margin-top: 30;
-} */
-
-button {
+#screenshot_button {
     background-color: black;
     color: white;
     padding: 10px 15px;
     border: none;
 }
 
-button:hover {
+#screenshot_button:hover {
     background-color: red;
     color: white;
 }
-
-/* #classification_result {
-    margin-left: 47.5%;
-} */

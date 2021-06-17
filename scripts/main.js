@@ -13,27 +13,47 @@ const media_constraints = {
     }
 };
 
-// const model_path = 'models/resnet18_v1.onnx';
-// const task = tasks.CLASSIFICATION;
-const model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
-const task = tasks.OBJECT_DETECTION;
-// const model = new Model(model_path, 224, 224, task, image_net_labels);
-const model = new Model(model_path, 512, 512, task, voc_detection_labels);
-var session = undefined;
+var model_path;
+var task;
+var model;
+var session;
+var postprocessor;
 const preprocessor = new Preprocessor();
-const postprocessor = new Postprocessor(model.task);
+
+async function on_classification() {
+    if (task == tasks.CLASSIFICATION) { return; }
+    if (processor.did_load) { processor.clear(); }
+    model_path = 'models/resnet18_v1.onnx';
+    task = tasks.CLASSIFICATION;
+    model = new Model(model_path, 224, 224, task, image_net_labels);
+    postprocessor = new Postprocessor(model.task);
+    session = await ort.InferenceSession.create(model.path);
+}
+
+async function on_obj_detection() {
+    if (task == tasks.OBJECT_DETECTION) { return; }
+    if (processor.did_load) { processor.clear(); }
+    model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
+    task = tasks.OBJECT_DETECTION;
+    model = new Model(model_path, 512, 512, task, voc_detection_labels);
+    postprocessor = new Postprocessor(model.task);
+    session = await ort.InferenceSession.create(model.path);
+}
 
 function screenshot() {
     processor.computeFrame();
 }
 
 var processor = {
-    doLoad: function() {
+    did_load: false,
+
+    do_load: function() {
         this.video = document.getElementById('local_video_stream');
         this.video_width = this.video.width;
         this.video_height = this.video.height;
         this.canvas = document.getElementById('result_canvas');
         this.canvas_ctx = this.canvas.getContext('2d');
+        this.did_load = true;
     },
 
     draw_bbox(label, score, bbox, color) {
@@ -91,7 +111,6 @@ var processor = {
                 break;
             case tasks.OBJECT_DETECTION:
                 data = Object.keys(result).map((key) => result[key].data);
-                console.log(data);
                 this.visualize(postprocessor.process(data, { 
                                                 video_width: this.video_width, 
                                                 video_height: this.video_height,
@@ -110,6 +129,10 @@ var processor = {
         // this.canvas_ctx.putImageData(frame, 0, 0);
 
         return;
+    },
+
+    clear: function() {
+        this.canvas_ctx.clearRect(0, 0, this.video_width, this.video_height);
     }
 }; 
 
@@ -129,12 +152,11 @@ function handle_get_user_media_error(e) {
 
 async function main() {
     try {
-        session = await ort.InferenceSession.create(model.path);
         navigator.mediaDevices.getUserMedia(media_constraints)
         .then(function (stream) {
             var local_video_stream = document.getElementById('local_video_stream');
             local_video_stream.srcObject = stream;
-            processor.doLoad();
+            processor.do_load();
         })
         .catch(handle_get_user_media_error);
     } catch (e) {
@@ -143,4 +165,11 @@ async function main() {
     
 }
 
-main();
+$(document).ready(function() {
+    $('.tab button').on('click', function(){
+        $('.tab button').removeClass('selected');
+        $(this).addClass('selected');
+    });
+    document.getElementById('classification_tab').click(); // provide a default tab
+    main();
+});
