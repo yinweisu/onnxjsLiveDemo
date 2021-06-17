@@ -37,6 +37,8 @@ var processor = {
     },
 
     visualize: function(processed_result) {
+        var classification_result_element = document.getElementById('classification_result');
+        classification_result_element.hidden = true;
         switch (model.task) {
             case tasks.CLASSIFICATION:
                 var classification_result_element = document.getElementById('classification_result');
@@ -67,12 +69,33 @@ var processor = {
         var rgba_frame_f32 = Float32Array.from(frame.data);
         var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, l);
 
-        const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,224,224,3]);
+        const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,model.input_width,model.input_height,3]);
         const result = await session.run({data: image_tensor});
-        // extract the data from result
-        const data = Object.keys(result).map((key) => result[key])[0].data;
-        // const data = result.resnetv10_dense0_fwd.data;
-        this.visualize(postprocessor.process(data, {k:5}));
+        var data = undefined;
+        // extract the data from result and visualize
+        switch (model.task) {
+            case tasks.CLASSIFICATION:
+                data = Object.keys(result).map((key) => result[key])[0].data;
+                this.visualize(postprocessor.process(data, { k:5 }));
+                break;
+            case tasks.OBJECT_DETECTION:
+                data = Object.keys(result).map((key) => result[key].data);
+                console.log(data);
+                this.visualize(postprocessor.process(data, { 
+                                                video_width: this.video_width, 
+                                                video_height: this.video_height,
+                                                input_width: model.input_width,
+                                                input_height: model.input_height,
+                                                threshold: 0.5,
+                                                }
+                                            ));
+
+                break;
+            default:
+                alert('Error: task ' + model.task + ' has not been implemented');
+                break;
+        }
+        
         // this.ctx1.putImageData(frame, 0, 0);
 
         return;

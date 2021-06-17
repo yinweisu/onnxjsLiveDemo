@@ -1,11 +1,10 @@
 class Postprocessor {
     constructor(task) {
         this.task = task;
-        // console.log(this.task);
     }
 
     process_classification(class_probability, ctx) { 
-        const k = ctx.k;
+        var k = ctx.k;
         if (!k) { k = 5; }
         const probs = Array.from(class_probability);
         const probs_indices = probs.map(
@@ -34,7 +33,65 @@ class Postprocessor {
         return topK;
     }
 
+    remap_bbox(bbox, video_width, video_height, input_width, input_height) {
+        const xmin = bbox[0];
+        const ymin = bbox[1];
+        const xmax = bbox[2];
+        const ymax = bbox[3];
+
+        const new_xmin = Math.round(xmin * (input_width / video_width));
+        const new_ymin = Math.round(ymin * (input_height / video_height));
+        const new_xmax = Math.round(xmax * (input_width / video_width));
+        const new_ymax = Math.round(ymax * (input_height / video_height));
+        const new_bbox_width = new_xmax - new_xmin;
+        const new_bbox_height = new_ymax - new_ymin;
+
+        // js requires starting point, width, height to draw rect
+        return [new_xmin, new_ymin, new_bbox_width, new_bbox_height];
+    }
+
     process_object_detection(result, ctx) {
+        const class_ids = result[0];
+        const scores = result[1];
+        const bboxes = result[2];
+        if ( class_ids.length != bboxes.length/4) {
+            throw `The length of labels and bboxes must match ${class_ids.length} vs ${bboxes.length/4}`;
+        }
+        if (scores.length != bboxes.length/4) {
+            throw `The length of scores and bboxes must match ${scores.length} vs ${bboxes.length/4}`;
+        }
+        const num_result = class_ids.length;
+        var video_width = ctx.video_width;
+        var video_height = ctx.video_height;
+        var input_width = ctx.input_width;
+        var input_height = ctx.input_height;
+        var threshold = ctx.threshold;
+        if (!video_width) { video_width = 512; }
+        if (!video_height) { video_height = 512; }
+        if (!threshold) { threshold = 0.5; }
+
+        var processed_class_ids = [];
+        var processed_scores = [];
+        var processed_bboxes = [];
+        var color_maps = [];
+
+        for (var i = 0; i < num_result; i++) {
+            if (scores[i] < threshold) { continue; }
+            if (class_ids[i] < threshold) { continue; }
+            const bbox = [
+                            Math.round(bboxes[i*4+0]), 
+                            Math.round(bboxes[i*4+1]), 
+                            Math.round(bboxes[i*4+2]), 
+                            Math.round(bboxes[i*4+3])
+                        ];
+            processed_class_ids.push(model.classes[class_ids[i]]);
+            processed_scores.push(scores[i].toFixed(3));
+            processed_bboxes.push(this.remap_bbox(bbox, video_width, video_height, input_width, input_height));
+            // magic to generate random color: https://css-tricks.com/snippets/javascript/random-hex-color/
+            color_maps.push(Math.floor(Math.random()*16777215).toString(16));
+        }
+
+        return [processed_class_ids, processed_scores, processed_bboxes, color_maps];
 
     }
 
@@ -51,24 +108,5 @@ class Postprocessor {
             case ttasks.POSE_ESTIMATION:
                 break;
         }
-    }
-}
-
-class ClassificationPostprocessor {
-    visualize(class_probability, k) {
-        if (!k) { k = 5; }
-        const probs = Array.from(class_probability);
-        const probs_indices = probs.map(
-            function (prob, index) {
-            return [prob, index];
-            }
-        );
-        console.log(probs_indices);
-    }
-}
-
-class ObjectDPostprocessor {
-    visualize() {
-
     }
 }
