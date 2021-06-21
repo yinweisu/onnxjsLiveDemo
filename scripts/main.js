@@ -151,10 +151,6 @@ function got_devices(mediaDevices) {
             const textNode = document.createTextNode(label);
             option.appendChild(textNode);
             camera_select.appendChild(option);
-            // if (default_choice === 'undefined') {
-            //     console.log('hi')
-            //     camera_select.value = option.value;
-            // }
         }
     });
     console.log(camera_select.value);
@@ -176,7 +172,6 @@ function get_camera() {
     } else {
         media_constraints.video.deviceId = { exact: camera_select.value };
     }
-    console.log(media_constraints);
     navigator.mediaDevices.getUserMedia(media_constraints)
     .then(function (stream) {
         var local_video_stream = document.getElementById('local_video_stream');
@@ -223,10 +218,6 @@ $(document).ready(function() {
         $('.tab button').removeClass('selected');
         $(this).addClass('selected');
     });
-    // $('#camera_select').on('change', function() {
-    //     $('#camera_select option').removeClass('selected');
-    //     $(this).addClass('selected');
-    // })
     document.getElementById('classification_tab').click(); // provide a default tab
     main();
 });
