@@ -65,7 +65,11 @@ var processor = {
         this.canvas_ctx.lineWidth = 3;
         this.canvas_ctx.font = "30px Comic Sans MS";
         this.canvas_ctx.strokeRect(xmin, ymin, width, height);
-        this.canvas_ctx.fillText(`${label} ${score}`, xmin, ymin-10);
+        if (ymin-30 <= 0) {
+            this.canvas_ctx.fillText(`${label} ${score}`, xmin, ymin+30);
+        } else {
+            this.canvas_ctx.fillText(`${label} ${score}`, xmin, ymin-10);
+        }
     },
 
     visualize: function(processed_result) {
