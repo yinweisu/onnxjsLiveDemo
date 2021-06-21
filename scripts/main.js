@@ -6,12 +6,14 @@ const tasks = {
     POSE_ESTIMATION: 'pose_estimation',
 }
 
-const media_constraints = {
+var media_constraints = {
     video: {
         width: 720,
         height: 480,
-    }
+    },
+    audio: false,
 };
+var current_stream;
 
 var model_path;
 var task;
@@ -134,7 +136,64 @@ var processor = {
     clear: function() {
         this.canvas_ctx.clearRect(0, 0, this.video_width, this.video_height);
     }
-}; 
+};
+
+function got_devices(mediaDevices) {
+    const camera_select = document.getElementById('camera_select');
+    camera_select.innerHTML = '';
+    // camera_select.appendChild(document.createElement('option'));
+    let count = 1;
+    mediaDevices.forEach(mediaDevice => {
+        if (mediaDevice.kind === 'videoinput') {
+            const option = document.createElement('option');
+            option.value = mediaDevice.deviceId;
+            const label = mediaDevice.label || `Camera ${count++}`;
+            const textNode = document.createTextNode(label);
+            option.appendChild(textNode);
+            camera_select.appendChild(option);
+            // if (default_choice === 'undefined') {
+            //     console.log('hi')
+            //     camera_select.value = option.value;
+            // }
+        }
+    });
+    console.log(camera_select.value);
+}
+
+function prepare_devices() {
+    navigator.mediaDevices.enumerateDevices()
+    .then(got_devices)
+    .then(get_camera);
+}
+
+function get_camera() {
+    if (typeof current_stream !== 'undefined') {
+        stop_current_stream();
+    } 
+    const camera_select = document.getElementById('camera_select');
+    if (camera_select.value === '') {
+        media_constraints.video.facingMode = 'environment';
+    } else {
+        media_constraints.video.deviceId = { exact: camera_select.value };
+    }
+    console.log(media_constraints);
+    navigator.mediaDevices.getUserMedia(media_constraints)
+    .then(function (stream) {
+        var local_video_stream = document.getElementById('local_video_stream');
+        local_video_stream.srcObject = stream;
+        processor.do_load();
+        current_stream = stream;
+    })
+    .catch(handle_get_user_media_error);
+}
+
+function stop_current_stream() {
+    if (current_stream) {
+        current_stream.getTracks().forEach(track => {
+            track.stop();
+        });
+    }
+}
 
 function handle_get_user_media_error(e) {
     switch(e.name) {
@@ -152,13 +211,7 @@ function handle_get_user_media_error(e) {
 
 async function main() {
     try {
-        navigator.mediaDevices.getUserMedia(media_constraints)
-        .then(function (stream) {
-            var local_video_stream = document.getElementById('local_video_stream');
-            local_video_stream.srcObject = stream;
-            processor.do_load();
-        })
-        .catch(handle_get_user_media_error);
+        prepare_devices();
     } catch (e) {
         alert(e);
     }
@@ -166,10 +219,14 @@ async function main() {
 }
 
 $(document).ready(function() {
-    $('.tab button').on('click', function(){
+    $('.tab button').on('click', function() {
         $('.tab button').removeClass('selected');
         $(this).addClass('selected');
     });
+    // $('#camera_select').on('change', function() {
+    //     $('#camera_select option').removeClass('selected');
+    //     $(this).addClass('selected');
+    // })
     document.getElementById('classification_tab').click(); // provide a default tab
     main();
 });

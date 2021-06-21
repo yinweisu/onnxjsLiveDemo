@@ -95,7 +95,6 @@ class Postprocessor {
             processed_class_ids.push(model.classes[class_ids[i]]);
             processed_scores.push(scores[i].toFixed(3));
             processed_bboxes.push(this.remap_bbox(bbox, video_width, video_height, input_width, input_height));
-            // magic to generate random color: https://css-tricks.com/snippets/javascript/random-hex-color/
             color_maps.push(this.getRandomColor());
         }
 

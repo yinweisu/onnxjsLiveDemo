@@ -26,6 +26,11 @@
                 <canvas class="display" id="result_canvas" width="720" height="480"></canvas>
             </div>
             <div class="clr"></div>
+            <p id="camera_prompt">Select Camera</p>
+            <select id="camera_select" onchange="get_camera()">
+                <option></option>
+            </select>
+            <div class="clr"></div>
             <div style="text-align: center;">
                 <button type="button" id="screenshot_button" onclick="screenshot()">Screenshot</button>
                 <p id="classification_result" hidden>Classification Result:</p>

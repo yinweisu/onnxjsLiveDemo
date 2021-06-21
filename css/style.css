@@ -63,6 +63,15 @@
     position: relative;
 }
 
+#camera_prompt {
+    float: left;
+    margin: 5px;
+}
+
+#camera_select {
+    margin: 5px;
+}
+
 #screenshot_button {
     background-color: black;
     color: white;
