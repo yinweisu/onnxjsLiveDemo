@@ -80,6 +80,7 @@ var processor = {
                 var classification_result_element = document.getElementById('classification_result');
                 classification_result_element.hidden = false;
                 results = [];
+                results.push(`Top ${processed_result.length} classification results are`);
                 processed_result.map((r) => results.push(r.name));
                 classification_result_element.innerHTML = results.join('<br>');
                 break;
@@ -145,7 +146,6 @@ var processor = {
 function got_devices(mediaDevices) {
     const camera_select = document.getElementById('camera_select');
     camera_select.innerHTML = '';
-    // camera_select.appendChild(document.createElement('option'));
     let count = 1;
     mediaDevices.forEach(mediaDevice => {
         if (mediaDevice.kind === 'videoinput') {
@@ -157,7 +157,6 @@ function got_devices(mediaDevices) {
             camera_select.appendChild(option);
         }
     });
-    console.log(camera_select.value);
 }
 
 function prepare_devices() {
