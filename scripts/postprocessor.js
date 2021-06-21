@@ -47,10 +47,11 @@ class Postprocessor {
         const ymin = bbox[1];
         const xmax = bbox[2];
         const ymax = bbox[3];
-        const new_xmin = Math.round(xmin * (video_width / input_width));
-        const new_ymin = Math.round(ymin * (video_height / input_height));
-        const new_xmax = Math.round(xmax * (video_width / input_width));
-        const new_ymax = Math.round(ymax * (video_height / input_height));
+        console.log(xmin, ymin);
+        const new_xmin = Math.max(Math.round(xmin * (video_width / input_width)), 0);
+        const new_ymin = Math.max(Math.round(ymin * (video_height / input_height)), 0);
+        const new_xmax = Math.min(Math.round(xmax * (video_width / input_width)), video_width);
+        const new_ymax = Math.min(Math.round(ymax * (video_height / input_height)), video_height);
         const new_bbox_width = new_xmax - new_xmin;
         const new_bbox_height = new_ymax - new_ymin;
 
