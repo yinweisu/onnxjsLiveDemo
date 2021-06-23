@@ -72,14 +72,14 @@
     margin: 5px;
 }
 
-#screenshot_button {
+#predict_button {
     background-color: black;
     color: white;
     padding: 10px 15px;
     border: none;
 }
 
-#screenshot_button:hover {
+#predict_button:hover {
     background-color: red;
     color: white;
 }

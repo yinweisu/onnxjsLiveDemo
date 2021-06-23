@@ -22,27 +22,56 @@ var session;
 var postprocessor;
 const preprocessor = new Preprocessor();
 
+function block_ui_on_loading() {
+    const predict_button = document.getElementById('predict_button');
+    const classification_tab = document.getElementById('classification_tab');
+    const object_detection_tab = document.getElementById('object_detection_tab');
+    predict_button.innerHTML = 'Loading';
+    predict_button.disabled = true;
+    classification_tab.disabled = true;
+    object_detection_tab.disabled = true;
+}
+
+function unblock_ui_on_loading() {
+    const predict_button = document.getElementById('predict_button');
+    const classification_tab = document.getElementById('classification_tab');
+    const object_detection_tab = document.getElementById('object_detection_tab');
+    predict_button.innerHTML = 'Predict';
+    predict_button.disabled = false;
+    classification_tab.disabled = false;
+    object_detection_tab.disabled = false;
+}
+
 async function on_classification() {
     if (task == tasks.CLASSIFICATION) { return; }
-    if (processor.did_load) { processor.clear(); }
-    model_path = 'models/resnet18_v1.onnx';
+    block_ui_on_loading();
+    model_path = 'https://apache-mxnet.s3-us-west-2.amazonaws.com/onnx/models/gluoncv-resnet18_v1-d1536b5d.onnx';
     task = tasks.CLASSIFICATION;
     model = new Model(model_path, 224, 224, task, image_net_labels);
     postprocessor = new Postprocessor(model.task);
-    session = await ort.InferenceSession.create(model.path);
+    await ort.InferenceSession.create(model.path).then((classification_session) => {
+        unblock_ui_on_loading();
+        session = classification_session;
+        console.log(session);
+    });
 }
 
 async function on_obj_detection() {
     if (task == tasks.OBJECT_DETECTION) { return; }
-    if (processor.did_load) { processor.clear(); }
-    model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
+    const predict_button = document.getElementById('predict_button');
+    block_ui_on_loading();
+    model_path = 'https://apache-mxnet.s3-us-west-2.amazonaws.com/onnx/models/gluoncv-yolo3_mobilenet1.0_voc-49165600.onnx';
     task = tasks.OBJECT_DETECTION;
     model = new Model(model_path, 512, 512, task, voc_detection_labels);
     postprocessor = new Postprocessor(model.task);
-    session = await ort.InferenceSession.create(model.path);
+    await ort.InferenceSession.create(model.path).then((detection_session) => {
+        unblock_ui_on_loading();
+        session = detection_session;
+        console.log(session);
+    });
 }
 
-function screenshot() {
+function predict() {
     processor.computeFrame();
 }
 
