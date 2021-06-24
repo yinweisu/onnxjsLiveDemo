@@ -45,6 +45,7 @@ function unblock_ui_on_loading() {
 
 async function on_classification() {
     if (task == tasks.CLASSIFICATION) { return; }
+    processor.clear();
     block_ui_on_loading();
     model_path = 'models/resnet18_v1.onnx'
     task = tasks.CLASSIFICATION;
@@ -64,7 +65,7 @@ async function on_classification() {
 
 async function on_obj_detection() {
     if (task == tasks.OBJECT_DETECTION) { return; }
-    const predict_button = document.getElementById('predict_button');
+    processor.clear();
     block_ui_on_loading();
     model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
     task = tasks.OBJECT_DETECTION;
@@ -93,7 +94,7 @@ var processor = {
         this.video_width = this.video.width;
         this.video_height = this.video.height;
         this.canvas = document.getElementById('result_canvas');
-        this.canvas_ctx = this.canvas.getContext('2d');
+        this.canvas_ctx = this.canvas.getContext('2d', { alspha: false });
         this.did_load = true;
     },
 
@@ -196,14 +197,19 @@ var processor = {
                 alert('Error: task ' + model.task + ' has not been implemented');
                 break;
         }
-        
-        // this.canvas_ctx.putImageData(frame, 0, 0);
 
         return;
     },
 
     clear: function() {
-        this.canvas_ctx.clearRect(0, 0, this.video_width, this.video_height);
+        if (this.canvas_ctx) {
+            this.canvas_ctx.clearRect(0, 0, this.video_width, this.video_height);
+            this.canvas_ctx.rect(0, 0, this.video_width, this.video_height);
+            this.canvas_ctx.fillStyle = 'black';
+            this.canvas_ctx.fill();
+        }
+        var classification_results_element = document.getElementById('classification_results');
+        classification_results_element.hidden = true;
     }
 };
 
