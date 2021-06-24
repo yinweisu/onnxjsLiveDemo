@@ -42,8 +42,8 @@ class Postprocessor {
         const topK = sorted.slice(0, k).map(function (prob_index) {
             const i_class = model.classes[prob_index[1]];
             return {
-                name: i_class,
-                prob: prob_index[0].toFixed(3),
+                label: i_class,
+                prob: (prob_index[0] * 100).toFixed(2),
                 index: prob_index[1],
             };
         });

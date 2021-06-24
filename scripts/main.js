@@ -45,7 +45,7 @@ function unblock_ui_on_loading() {
 async function on_classification() {
     if (task == tasks.CLASSIFICATION) { return; }
     block_ui_on_loading();
-    model_path = 'https://apache-mxnet.s3-us-west-2.amazonaws.com/onnx/models/gluoncv-resnet18_v1-d1536b5d.onnx';
+    model_path = 'models/resnet18_v1.onnx'
     task = tasks.CLASSIFICATION;
     model = new Model(model_path, 224, 224, task, image_net_labels);
     postprocessor = new Postprocessor(model.task);
@@ -60,7 +60,7 @@ async function on_obj_detection() {
     if (task == tasks.OBJECT_DETECTION) { return; }
     const predict_button = document.getElementById('predict_button');
     block_ui_on_loading();
-    model_path = 'https://apache-mxnet.s3-us-west-2.amazonaws.com/onnx/models/gluoncv-yolo3_mobilenet1.0_voc-49165600.onnx';
+    model_path = 'models/yolo3_mobilenet1.0_voc.onnx';
     task = tasks.OBJECT_DETECTION;
     model = new Model(model_path, 512, 512, task, voc_detection_labels);
     postprocessor = new Postprocessor(model.task);
@@ -87,7 +87,30 @@ var processor = {
         this.did_load = true;
     },
 
-    draw_bbox(label, score, bbox, color) {
+    show_classification_result: function(label, prob) {
+        var classification_left_element = document.getElementById('classification_left');
+        var classification_right_element = document.getElementById('classification_right');
+
+        var label_element = document.createElement('p');
+        label_element.innerHTML = label;
+        label_element.className = 'classification_label';
+        classification_left_element.appendChild(label_element);
+
+        var div = document.createElement('div');
+        var prob_bar_element = document.createElement('progress');
+        prob_bar_element.className = 'classification_prob_bar';
+        prob_bar_element.value = prob;
+        prob_bar_element.max = '100';
+        var prob_element = document.createElement('p');
+        prob_element.innerHTML = prob + '%';
+        prob_element.className = 'classification_prob';
+
+        div.appendChild(prob_bar_element);
+        div.appendChild(prob_element);
+        classification_right_element.appendChild(div);
+    },
+
+    draw_bbox: function(label, score, bbox, color) {
         [xmin, ymin, width, height] = bbox;
         this.canvas_ctx.strokeStyle = color;
         this.canvas_ctx.fillStyle = color;
@@ -102,16 +125,17 @@ var processor = {
     },
 
     visualize: function(processed_result) {
-        var classification_result_element = document.getElementById('classification_result');
-        classification_result_element.hidden = true;
+        var classification_results_element = document.getElementById('classification_results');
+        classification_results_element.hidden = true;
         switch (model.task) {
             case tasks.CLASSIFICATION:
-                var classification_result_element = document.getElementById('classification_result');
-                classification_result_element.hidden = false;
-                results = [];
-                results.push(`Top ${processed_result.length} classification results are`);
-                processed_result.map((r) => results.push(r.name));
-                classification_result_element.innerHTML = results.join('<br>');
+                var classification_results_element = document.getElementById('classification_results');
+                var classification_left_element = document.getElementById('classification_left');
+                var classification_right_element = document.getElementById('classification_right');
+                classification_left_element.innerHTML = '';
+                classification_right_element.innerHTML = '';
+                classification_results_element.hidden = false;
+                processed_result.map((r) => this.show_classification_result(r.label, r.prob));
                 break;
             case tasks.OBJECT_DETECTION:
                 [classes, scores, bboxes, color_maps] = processed_result;
