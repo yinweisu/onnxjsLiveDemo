@@ -18,7 +18,8 @@ var current_stream;
 var model_path;
 var task;
 var model;
-var session;
+var classification_session;
+var detection_session;
 var postprocessor;
 const preprocessor = new Preprocessor();
 
@@ -49,11 +50,16 @@ async function on_classification() {
     task = tasks.CLASSIFICATION;
     model = new Model(model_path, 224, 224, task, image_net_labels);
     postprocessor = new Postprocessor(model.task);
-    await ort.InferenceSession.create(model.path).then((classification_session) => {
+    // the website won't cache the model for some reason, resulting redownload each time
+    if (classification_session === undefined) {
+        await ort.InferenceSession.create(model.path).then((session) => {
+            classification_session = session;
+            unblock_ui_on_loading();
+        });
+    } else {
         unblock_ui_on_loading();
-        session = classification_session;
-        console.log(session);
-    });
+    }
+    
 }
 
 async function on_obj_detection() {
@@ -64,11 +70,15 @@ async function on_obj_detection() {
     task = tasks.OBJECT_DETECTION;
     model = new Model(model_path, 512, 512, task, voc_detection_labels);
     postprocessor = new Postprocessor(model.task);
-    await ort.InferenceSession.create(model.path).then((detection_session) => {
+    if (detection_session === undefined) {
+        await ort.InferenceSession.create(model.path).then((session) => {
+            detection_session = session;
+            unblock_ui_on_loading();
+        });
+    } else {
         unblock_ui_on_loading();
-        session = detection_session;
-        console.log(session);
-    });
+    }
+    
 }
 
 function predict() {
@@ -159,17 +169,18 @@ var processor = {
         var frame_length = frame.data.length / 4;
         var rgba_frame_f32 = Float32Array.from(frame.data);
         var rgb_frame_f32 = preprocessor.remove_alpha_channel(rgba_frame_f32, frame_length);
-
         const image_tensor = new ort.Tensor('float32', rgb_frame_f32, [1,model.input_width,model.input_height,3]);
-        const result = await session.run({data: image_tensor});
+        var result = undefined;
         var data = undefined;
         // extract the data from result and visualize
         switch (model.task) {
             case tasks.CLASSIFICATION:
+                result = await classification_session.run({data: image_tensor});
                 data = Object.keys(result).map((key) => result[key])[0].data;
                 this.visualize(postprocessor.process(data, { k:5 }));
                 break;
             case tasks.OBJECT_DETECTION:
+                result = await detection_session.run({data: image_tensor});
                 data = Object.keys(result).map((key) => result[key].data);
                 this.visualize(postprocessor.process(data, { 
                                                 video_width: this.video_width, 
