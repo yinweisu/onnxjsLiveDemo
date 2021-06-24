@@ -12,10 +12,17 @@ class Postprocessor {
         return color;
     }
 
-    process_classification(class_probability, ctx) { 
+    scores_to_probs(scores) {
+        var probs = [];
+        const softmax_sum = scores.reduce((a, b) => a + Math.exp(b), 0);
+        scores.forEach((score) => probs.push(Math.exp(score) / softmax_sum));
+        return probs;
+    }
+
+    process_classification(scores, ctx) { 
         var k = ctx.k;
         if (!k) { k = 5; }
-        const probs = Array.from(class_probability);
+        const probs = this.scores_to_probs(Array.from(scores));
         const probs_indices = probs.map(
             function (prob, index) {
             return [prob, index];
@@ -36,6 +43,7 @@ class Postprocessor {
             const i_class = model.classes[prob_index[1]];
             return {
                 name: i_class,
+                prob: prob_index[0].toFixed(3),
                 index: prob_index[1],
             };
         });
